@@ -53,5 +53,10 @@
         ],
         "generate-resources": "cd ./openapi && npm run generator",
         "fix-code": "phpcbf ."
+    },
+    "config": {
+        "allow-plugins": {
+            "php-http/discovery": true
+        }
     }
 }
