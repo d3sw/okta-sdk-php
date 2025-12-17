@@ -28,7 +28,7 @@ use Okta\Users\User;
 class Okta
 {
 
-    const VERSION = '1.2.1';
+    const VERSION = '1.2.4';
 
     public function __construct(Client $client = null, DefaultDataStore $dataStore = null)
     {
