@@ -31,6 +31,13 @@ class SswsAuthTest extends TestCase
         );
     }
 
+    /** @test */
+    public function header_value_is_available_without_request()
+    {
+        $sswsAuth = new SswsAuth('456');
+        $this->assertEquals('SSWS 456', $sswsAuth->getHeaderValue());
+    }
+
 }
 
 class MockRequest implements \Psr\Http\Message\RequestInterface

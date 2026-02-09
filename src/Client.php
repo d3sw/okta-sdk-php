@@ -17,7 +17,7 @@
 
 namespace Okta;
 
-use Http\Client\HttpClient;
+use Psr\Http\Client\ClientInterface;
 use Okta\Cache\CacheManager;
 use Okta\Cache\MemoryManager;
 use Okta\DataStore\DefaultDataStore;
@@ -45,7 +45,7 @@ class Client
     private $organizationUrl;
 
     /**
-     * @var HttpClient $httpClient An instance of HttpClient to use for communicating with Okta.
+     * @var ClientInterface $httpClient An instance of an HTTP client to use for communicating with Okta.
      */
     private $httpClient;
 
@@ -69,7 +69,7 @@ class Client
      *
      * @param string                    $token
      * @param string                    $organizationUrl
-     * @param HttpClient|NULL           $httpClient
+     * @param ClientInterface|NULL      $httpClient
      * @param string|NULL               $integrationUserAgent
      * @param CacheManager|NULL         $cacheManager
      * @param AuthorizationMode|NULL    $authorizationMode
@@ -77,7 +77,7 @@ class Client
     public function __construct(
         string $token,
         string $organizationUrl,
-        HttpClient $httpClient = null,
+        ClientInterface $httpClient = null,
         string $integrationUserAgent = null,
         CacheManager $cacheManager = null,
         AuthorizationMode $authorizationMode = null

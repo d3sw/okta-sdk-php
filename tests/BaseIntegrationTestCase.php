@@ -32,9 +32,9 @@ class BaseIntegrationTestCase extends BaseTestCase
      * @param array $returns
      * @param AuthorizationMode $authzMode
      *
-     * @return \Http\Client\HttpClient
+     * @return \Psr\Http\Client\ClientInterface
      */
-    protected function createNewHttpClient($returns = [], AuthorizationMode $authzMode = null): \Http\Client\HttpClient
+    protected function createNewHttpClient($returns = [], AuthorizationMode $authzMode = null): \Psr\Http\Client\ClientInterface
     {
         if( ! $this->isMockingResponses() ) {
             return \Okta\Client::getInstance()->getDataStore()->getHttpClient();

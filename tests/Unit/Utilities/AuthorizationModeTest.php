@@ -16,7 +16,6 @@
  ******************************************************************************/
 
 use Okta\Utilities\AuthorizationMode;
-use Okta\Utilities\SswsAuth;
 use PHPUnit\Framework\TestCase;
 
 class AuthorizationModeTest extends TestCase
@@ -36,11 +35,11 @@ class AuthorizationModeTest extends TestCase
   }
 
   /** @test */
-  public function ssws_type_returns_instance_of_ssws_auth_driver()
+  public function ssws_type_returns_authorization_header_value()
   {
     $authorizationType = new AuthorizationMode(AuthorizationMode::SSWS);  
     $authorizationType->setToken('123');
-    $this->assertInstanceOf(SswsAuth::class, $authorizationType->getDriver());
+    $this->assertEquals('SSWS 123', $authorizationType->getAuthorizationHeaderValue());
   }
 
   /** @test */

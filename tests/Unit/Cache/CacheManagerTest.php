@@ -1,6 +1,6 @@
 <?php
 
-use Http\Discovery\UriFactoryDiscovery;
+use Http\Discovery\Psr17FactoryDiscovery;
 use Okta\ClientBuilder;
 
 class CacheManagerTest extends BaseTestCase
@@ -8,7 +8,7 @@ class CacheManagerTest extends BaseTestCase
     /** @test */
     public function can_generate_a_cache_key_string_from_a_uri()
     {
-         $uriFactory = UriFactoryDiscovery::find();
+         $uriFactory = Psr17FactoryDiscovery::findUriFactory();
          $uri = $uriFactory->createUri('https://okta.com/sample/cache-key/test+test@test.com');
          $query = http_build_query(['with'=>'a','query'=>'string']);
 
@@ -36,7 +36,7 @@ class CacheManagerTest extends BaseTestCase
     /** @test */
     public function cache_manager_can_store_item_in_cache()
     {
-        $uriFactory = UriFactoryDiscovery::find();
+        $uriFactory = Psr17FactoryDiscovery::findUriFactory();
         $uri = $uriFactory->createUri('https://okta.com/sample/cache/key');
 
         $clientBuilder = new ClientBuilder();

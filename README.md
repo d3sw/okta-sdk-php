@@ -42,13 +42,13 @@ $client = (new \Okta\ClientBuilder())
 ```
 
 ### Changing your Http Client Instance
-The Okta PHP SDK follows PSR-7 standards for HTTP Messages. We are using Httplug which allows you to change out to
-any PSR-7 compliant Http Client. Create a new instance of a `Http\Client\HttpClient`
-implementation and pass it into the client builder.
+The Okta PHP SDK follows PSR-7 standards for HTTP messages and uses a PSR-18 HTTP client. You can provide any
+PSR-18 compliant HTTP client implementation and pass it into the client builder.
 
 ```php
+$httpClient = \Http\Discovery\Psr18ClientDiscovery::find();
 $client = (new \Okta\ClientBuilder())
-            ->setHttpClient(new Http\Client\HttpClient())
+            ->setHttpClient($httpClient)
             ->build();
 ```
 

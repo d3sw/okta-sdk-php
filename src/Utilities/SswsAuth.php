@@ -17,14 +17,13 @@
 
 namespace Okta\Utilities;
 
-use Http\Message\Authentication;
 use Psr\Http\Message\RequestInterface;
 
 /**
  * Class SswsAuth
  * @package Okta\Utilities
  */
-class SswsAuth implements Authentication
+class SswsAuth
 {
     /**
      * @var string $token The API Token for your organization.
@@ -50,11 +49,16 @@ class SswsAuth implements Authentication
      */
     public function authenticate(RequestInterface $request): RequestInterface
     {
-        $header = sprintf(
-            'SSWS %s',
-            $this->token
-        );
+        return $request->withHeader('Authorization', $this->getHeaderValue());
+    }
 
-        return $request->withHeader('Authorization', $header);
+    /**
+     * Get the authorization header value.
+     *
+     * @return string
+     */
+    public function getHeaderValue(): string
+    {
+        return sprintf('SSWS %s', $this->token);
     }
 }

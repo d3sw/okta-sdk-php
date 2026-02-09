@@ -18,7 +18,6 @@
 namespace Okta\Utilities;
 
 use Okta\Client;
-use Http\Message\Authentication\Bearer;
 
 class AuthorizationMode extends Enum {
   const SSWS = 'SSWS';
@@ -122,24 +121,51 @@ class AuthorizationMode extends Enum {
   }
 
   /**
-   * Return the auth driver for SSWS
-   * 
-   * @return SswsAuth
+   * Get the authorization header value.
+   *
+   * @return string
    */
-  public function sswsGetDriver()  
+  public function getAuthorizationHeaderValue(): string
   {
-    return new SswsAuth($this->token);
+    switch ($this->getValue()) {
+      case self::SSWS:
+        return $this->sswsGetAuthorizationHeaderValue();
+      case self::PRIVATE_KEY:
+        return $this->privateKeyGetAuthorizationHeaderValue();
+      default:
+        throw new \UnexpectedValueException("Unsupported authorization mode '{$this->getValue()}'");
+    }
   }
 
   /**
-   * Return the auth driver for bearer tokens (Public Key)
-   * 
-   * @return Bearer
+   * Backwards-compatible alias. Returns the authorization header value.
+   *
+   * @return string
    */
-  public function privateKeyGetDriver()
+  public function getDriver(): string
+  {
+    return $this->getAuthorizationHeaderValue();
+  }
+
+  /**
+   * Return the authorization header value for SSWS.
+   *
+   * @return string
+   */
+  private function sswsGetAuthorizationHeaderValue(): string
+  {
+    return (new SswsAuth($this->token))->getHeaderValue();
+  }
+
+  /**
+   * Return the authorization header value for bearer tokens (private key).
+   *
+   * @return string
+   */
+  private function privateKeyGetAuthorizationHeaderValue(): string
   {
     $this->token = (new PrivateKeyAuthentication($this->clientId, $this->scopes, $this->privateKey, $this->orgUrl))->getBearerToken();
-    return new Bearer($this->token);
+    return sprintf('Bearer %s', $this->token);
   }
 
 }
