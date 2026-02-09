@@ -34,14 +34,26 @@ class DefaultDataStoreTest extends TestCase
     }
 
     /** @test */
-    public function returns_instance_of_message_factory()
+    public function returns_instance_of_request_factory()
     {
         $dataStore = new Okta\DataStore\DefaultDataStore('123', 'https://example.com');
 
         $this->assertInstanceOf(
-            \Http\Message\MessageFactory::class,
-            $dataStore->getMessageFactory(),
-            'The MessageFactory does not return instance of ' . \Http\Message\MessageFactory::class
+            \Psr\Http\Message\RequestFactoryInterface::class,
+            $dataStore->getRequestFactory(),
+            'The RequestFactory does not return instance of ' . \Psr\Http\Message\RequestFactoryInterface::class
+        );
+    }
+
+    /** @test */
+    public function returns_instance_of_stream_factory()
+    {
+        $dataStore = new Okta\DataStore\DefaultDataStore('123', 'https://example.com');
+
+        $this->assertInstanceOf(
+            \Psr\Http\Message\StreamFactoryInterface::class,
+            $dataStore->getStreamFactory(),
+            'The StreamFactory does not return instance of ' . \Psr\Http\Message\StreamFactoryInterface::class
         );
     }
 
@@ -52,9 +64,9 @@ class DefaultDataStoreTest extends TestCase
         $dataStore = new Okta\DataStore\DefaultDataStore('123', 'https://example.com');
 
         $this->assertInstanceOf(
-            \Http\Message\UriFactory::class,
+            \Psr\Http\Message\UriFactoryInterface::class,
             $dataStore->getUriFactory(),
-            'The UriFactory does not return instance of ' . \Http\Message\UriFactory::class
+            'The UriFactory does not return instance of ' . \Psr\Http\Message\UriFactoryInterface::class
         );
     }
 

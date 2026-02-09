@@ -17,38 +17,35 @@
 
 namespace Okta\DataStore;
 
-use Cache\Adapter\Common\CacheItem;
-use function GuzzleHttp\Psr7\build_query;
-use function GuzzleHttp\Psr7\parse_query;
-use Http\Client\Common\Plugin\AuthenticationPlugin;
+use GuzzleHttp\Psr7\Query;
+use Http\Client\Common\Plugin\HeaderSetPlugin;
 use Http\Client\Common\PluginClient;
-use Http\Client\HttpClient;
-use Http\Discovery\HttpClientDiscovery;
-use Http\Discovery\MessageFactoryDiscovery;
-use Http\Discovery\UriFactoryDiscovery;
-use Http\Message\MessageFactory;
-use Http\Message\UriFactory;
+use Http\Discovery\{Psr18ClientDiscovery, Psr17FactoryDiscovery};
+use Psr\Http\Client\ClientInterface;
+use Psr\Http\Message\{RequestFactoryInterface, StreamFactoryInterface, UriFactoryInterface, UriInterface};
 use Okta\Client;
 use Okta\Exceptions\Error;
 use Okta\Exceptions\ResourceException;
-use Okta\Resource\AbstractCollection;
-use Okta\Resource\AbstractResource;
+use Okta\Resource\{AbstractCollection, AbstractResource};
 use Okta\Utilities\AuthorizationMode;
-use Okta\Utilities\SswsAuth;
 use Okta\Utilities\UserAgentBuilder;
-use Psr\Http\Message\UriInterface;
 
 class DefaultDataStore
 {
     /**
-     * @var \Http\Message\UriFactory $uriFactory Uri Factory.
+     * @var UriFactoryInterface $uriFactory Uri factory.
      */
     protected $uriFactory;
 
     /**
-     * @var \Http\Message\MessageFactory $messageFactory Message Factory.
+     * @var RequestFactoryInterface $requestFactory Request factory.
      */
-    protected $messageFactory;
+    protected $requestFactory;
+
+    /**
+     * @var StreamFactoryInterface $streamFactory Stream factory.
+     */
+    protected $streamFactory;
 
     /**
      * @var string $token The token for your organization.
@@ -86,10 +83,10 @@ class DefaultDataStore
      *
      * @param string          $token
      * @param string          $organizationUrl
-     * @param HttpClient|NULL $httpClient
+     * @param ClientInterface|NULL $httpClient
      * @param AuthorizationMode|NULL $authorizationMode
      */
-    public function __construct(string $token, string $organizationUrl, HttpClient $httpClient = null, AuthorizationMode $authorizationMode = null)
+    public function __construct(string $token, string $organizationUrl, ClientInterface $httpClient = null, AuthorizationMode $authorizationMode = null)
     {
         $this->token = $token;
         $this->organizationUrl = $organizationUrl;
@@ -97,17 +94,18 @@ class DefaultDataStore
             $authorizationMode = new AuthorizationMode(AuthorizationMode::SSWS);
         }
 
-        $authenticationPlugin = new AuthenticationPlugin(
-            $authorizationMode->getDriver()
-        );
+        $authenticationPlugin = new HeaderSetPlugin([
+            'Authorization' => $authorizationMode->getAuthorizationHeaderValue(),
+        ]);
 
         $this->httpClient = new PluginClient(
-            $httpClient ?: HttpClientDiscovery::find(),
+            $httpClient ?: Psr18ClientDiscovery::find(),
             [ $authenticationPlugin ]
         );
 
-        $this->uriFactory = UriFactoryDiscovery::find();
-        $this->messageFactory = MessageFactoryDiscovery::find();
+        $this->uriFactory = Psr17FactoryDiscovery::findUriFactory();
+        $this->requestFactory = Psr17FactoryDiscovery::findRequestFactory();
+        $this->streamFactory = Psr17FactoryDiscovery::findStreamFactory();
 
         $this->baseUrl = $this->organizationUrl . '/api/v1';
 
@@ -289,7 +287,13 @@ class DefaultDataStore
             $uri = $uri->withQuery($this->appendQueryValues($uri->getQuery(), $queryString));
         }
 
-        $request = $this->messageFactory->createRequest($method, $uri, $headers, $body);
+        $request = $this->requestFactory->createRequest($method, $uri);
+        foreach ($headers as $name => $value) {
+            $request = $request->withHeader($name, $value);
+        }
+        if ($body) {
+            $request = $request->withBody($this->streamFactory->createStream($body));
+        }
 
         $response = $this->httpClient->sendRequest($request);
 
@@ -382,7 +386,7 @@ class DefaultDataStore
      */
     private function appendQueryValues($currentQuery, $queryDictionary)
     {
-        $currentQueryParts = parse_query($currentQuery);
+        $currentQueryParts = Query::parse($currentQuery);
 
         if ($currentQuery == '') {
             $result = [];
@@ -398,7 +402,7 @@ class DefaultDataStore
         }
 
         $result = array_replace_recursive($currentQueryParts, $result);
-        return build_query($result);
+        return Query::build($result);
     }
 
     /**
@@ -412,21 +416,31 @@ class DefaultDataStore
     }
 
     /**
-     * Get the current MessageFactory instance.
+     * Get the current RequestFactory instance.
      *
-     * @return MessageFactory
+     * @return RequestFactoryInterface
      */
-    public function getMessageFactory(): MessageFactory
+    public function getRequestFactory(): RequestFactoryInterface
     {
-        return $this->messageFactory;
+        return $this->requestFactory;
+    }
+
+    /**
+     * Get the current StreamFactory instance.
+     *
+     * @return StreamFactoryInterface
+     */
+    public function getStreamFactory(): StreamFactoryInterface
+    {
+        return $this->streamFactory;
     }
 
     /**
      * Get the current UriFactory instance.
      *
-     * @return UriFactory
+     * @return UriFactoryInterface
      */
-    public function getUriFactory(): UriFactory
+    public function getUriFactory(): UriFactoryInterface
     {
         return $this->uriFactory;
     }

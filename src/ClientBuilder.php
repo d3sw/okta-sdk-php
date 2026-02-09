@@ -17,7 +17,7 @@
 
 namespace Okta;
 
-use Http\Client\HttpClient;
+use Psr\Http\Client\ClientInterface;
 use Okta\Cache\CacheManager;
 use Symfony\Component\Yaml\Parser;
 use Okta\Utilities\AuthorizationMode;
@@ -44,7 +44,7 @@ class ClientBuilder
     private $configFileLocation = null;
 
     /**
-     * @var HttpClient $httpClient An instance of HttpClient to use for communicating with Okta.
+     * @var ClientInterface $httpClient An instance of an HTTP client to use for communicating with Okta.
      */
     private $httpClient;
 
@@ -147,10 +147,10 @@ class ClientBuilder
     /**
      * Sets the HTTP Client to use.
      *
-     * @param HttpClient $httpClient An instnace of HttpClient to be used in the SDK.
+     * @param ClientInterface $httpClient An instance of an HTTP client to be used in the SDK.
      * @return ClientBuilder
      */
-    public function setHttpClient(HttpClient $httpClient): ClientBuilder
+    public function setHttpClient(ClientInterface $httpClient): ClientBuilder
     {
         $this->httpClient = $httpClient;
         return $this;

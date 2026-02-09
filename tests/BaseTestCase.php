@@ -31,9 +31,9 @@ class BaseTestCase extends TestCase
     /**
      * @param array $returns
      *
-     * @return \Http\Client\HttpClient
+     * @return \Psr\Http\Client\ClientInterface
      */
-    protected function createNewHttpClient($returns = []): \Http\Client\HttpClient
+    protected function createNewHttpClient($returns = []): \Psr\Http\Client\ClientInterface
     {
         $defaults = [
             'getStatusCode' => 200,

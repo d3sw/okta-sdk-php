@@ -18,11 +18,8 @@
 namespace Okta\Cache;
 
 use Cache\Adapter\Common\CacheItem;
-use Http\Discovery\UriFactoryDiscovery;
 use Okta\Client;
-use Okta\Resource\AbstractResource;
-use Psr\Cache\CacheItemInterface;
-use Psr\Cache\CacheItemPoolInterface;
+use Psr\Cache\{CacheItemInterface, CacheItemPoolInterface};
 use Psr\Http\Message\UriInterface;
 
 abstract class CacheManager
